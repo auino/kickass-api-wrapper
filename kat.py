@@ -9,7 +9,37 @@ import HTMLParser
 from bs4 import BeautifulSoup
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 
+###########################
+###   BASIC SETTINGS    ###
+###        BEGIN        ###
+###########################
+
+# limits returned results
+LIMITRESULTS = None
+
+# listening address used by the server (i.e. set it to "127.0.0.1" to only accept connections from localhost, "0.0.0.0" for a public service binding)
+LISTENADDRESS="127.0.0.1"
+
+# listening port of the server
+LISTENPORT=8123
+
+###########################
+###   BASIC SETTINGS    ###
+###         END         ###
+###########################
+
+###########################
+###  ADVANCED SETTINGS  ###
+###        BEGIN        ###
+###########################
+
+# user agent used to request HTML pages
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36'
+
+# Sonarr search format
 SONARRSEARCHFORMAT = '/usearch/'
+
+# returned resource category type
 CATEGORY = 'TV'
 
 # returns detailed information for each found file
@@ -18,20 +48,8 @@ DETAILEDRESULTS = True
 # used space separator for the query
 SEPARATOR = '+'
 
-# limits returned results
-LIMITRESULTS = 2
-
+# comparison string to identify verified torrents
 VERIFIEDSTRING = 'Verified Torrent'
-
-# listening address used by the server (i.e. set it to "127.0.0.1" to only accept connections from localhost)
-#LISTENADDRESS="0.0.0.0"
-LISTENADDRESS="127.0.0.1"
-
-# listening port of the server
-LISTENPORT=8123
-
-# user agent used to request HTML pages
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36'
 
 # extraction patterns
 
@@ -53,6 +71,11 @@ EXTRACTIONPATTERNS_DETAIL = [
 ]
 
 def geturl(args): return 'http://kat.how/search.php?q=' + args
+
+###########################
+###  ADVANCED SETTINGS  ###
+###         END         ###
+###########################
 
 def createxmlsubtreefromrecord(parent, fieldname, data):
 	try:

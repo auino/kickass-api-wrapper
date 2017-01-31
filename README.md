@@ -31,7 +31,18 @@ In this case, download it from http://effbot.org/downloads#elementtree and proce
 
 ### Configuration ###
 
-TODO
+It's possible to configure program behavior by customizing [kat.py](https://github.com/auino/kickass-api-wrapper/blob/master/kat.py) variables values on the relative section.
+
+### Execution ###
+
+To run the service daemon, run the following command:
+
+```sh
+python kat.py
+```
+
+If you wish to run the daemon at system boot, insert the command inside of the `/etc/rc.local` file, by specifying the whole path of the Python script.
+The program will be executed as `root`.
 
 ### Notes ###
 
