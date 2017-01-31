@@ -46,7 +46,7 @@ The program will be executed as `root`.
 
 ### Notes ###
 
-Based on a Python script by Emanuele Munafò.
+Based on an [Alfred script based on Python](http://www.packal.org/workflow/kat-search) by Emanuele Munafò.
 
 ### Contacts ###
 
