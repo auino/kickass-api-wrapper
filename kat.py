@@ -5,20 +5,33 @@ import re
 import urllib, urllib2
 import requests
 import cherrypy
+import HTMLParser
 from bs4 import BeautifulSoup
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 
-# Server information
-KATSERVER = 'http://kat.how'
-SEARCHFORMAT = '/search.php?q='
-POSTREQUESTDATA = ''
-SEPARATOR = '+'
-
 SONARRSEARCHFORMAT = '/usearch/'
+CATEGORY = 'TV'
 
+# returns detailed information for each found file
 DETAILEDRESULTS = True
 
+# used space separator for the query
+SEPARATOR = '+'
+
+# limits returned results
+LIMITRESULTS = 2
+
 VERIFIEDSTRING = 'Verified Torrent'
+
+# listening address used by the server (i.e. set it to "127.0.0.1" to only accept connections from localhost)
+#LISTENADDRESS="0.0.0.0"
+LISTENADDRESS="127.0.0.1"
+
+# listening port of the server
+LISTENPORT=8123
+
+# user agent used to request HTML pages
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36'
 
 # extraction patterns
 
@@ -39,14 +52,7 @@ EXTRACTIONPATTERNS_DETAIL = [
 	{'key': 'sizebytes', 'actions': [{'tag': 'span', 'filter': {'class': 'folderopen'}, 'field': 'CONTENT', 'index': 0}]}
 ]
 
-# listening address used by the server (i.e. set it to "127.0.0.1" to only accept connections from localhost)
-LISTENADDRESS="0.0.0.0"
-# listening port of the server
-LISTENPORT=8123
-
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36'
-
-def geturl(args): return KATSERVER + SEARCHFORMAT + args + POSTREQUESTDATA
+def geturl(args): return 'http://kat.how/search.php?q=' + args
 
 def createxmlsubtreefromrecord(parent, fieldname, data):
 	try:
@@ -61,20 +67,20 @@ def convertrecordstoxml(records):
 	for r in records:
 		top = createxmlsubtreefromrecord(xml, 'item', r.get('recordname'))
 		title = createxmlsubtreefromrecord(top, 'title', r.get('name'))
-		category = createxmlsubtreefromrecord(top, 'category', None)
+		category = createxmlsubtreefromrecord(top, 'category', CATEGORY)
 		author = createxmlsubtreefromrecord(top, 'author', r.get('uploader'))
 		link = createxmlsubtreefromrecord(top, 'link', r.get('link'))
 		guid = createxmlsubtreefromrecord(top, 'guid', r.get('link'))
-		pubdate = createxmlsubtreefromrecord(top, 'pubDate', None)
+		pubdate = createxmlsubtreefromrecord(top, 'pubDate', r.get('updatetime'))
 		length = createxmlsubtreefromrecord(top, 'torrent:contentLenght', r.get('sizebytes'))
 		infohash = createxmlsubtreefromrecord(top, 'torrent:infoHash', r.get('infohash'))
 		uri = createxmlsubtreefromrecord(top, 'torrent:magnetURI', '<![CDATA['+r.get('magnet')+']]>')
 		seeds = createxmlsubtreefromrecord(top, 'torrent:seeds', r.get('seeds'))
 		peers = createxmlsubtreefromrecord(top, 'torrent:peers', r.get('peers'))
 		verified = createxmlsubtreefromrecord(top, 'torrent:verified', ('1' if r.get('verified') else '0'))
-		filename = createxmlsubtreefromrecord(top, 'torrent:fileName', None)
-		enclosure = SubElement(top, 'enclosure',{'url':r.get('link')})
-	return tostring(xml)
+		filename = createxmlsubtreefromrecord(top, 'torrent:fileName', r.get('name'))
+		enclosure = SubElement(top, 'enclosure', {'url': r.get('link')})
+	return HTMLParser.HTMLParser().unescape(tostring(xml))
 
 # extracts data from a BeautifulSoup element using given patterns
 def dataextractor(data, patterns):
@@ -84,12 +90,10 @@ def dataextractor(data, patterns):
 			v = data
 			for action in el.get('actions'):
 				v = v.find_all(action.get('tag'), action.get('filter'))[action.get('index')]
-				#print action, v
 				if action.get('field') != None:
 					if action.get('field') == 'CONTENT': v = v.getText()
 					else: v = v.get(action.get('field'))
 			res[el.get('key')] = v
-			#print v
 		except: return None
 	return res
 
@@ -111,6 +115,7 @@ def search(query, verified):
 	if result == None: return None
 	# building html as a structure
 	soup = BeautifulSoup(result, 'html.parser')
+	count = 0
 	# getting results, one by one
 	for row in soup.find_all('tr')[1:]:
 		# extracting data in function of the patterns
@@ -127,6 +132,7 @@ def search(query, verified):
 		if rowdata.get('uploader') != None:
 			rowdata['uploader'] = rowdata.get('uploader').replace('\n', ' ').split(' ')
 			rowdata['uploader'] = [x for x in rowdata.get('uploader') if x][2]
+		# retrieving detailed information, if needed
 		if DETAILEDRESULTS and rowdata.get('link') != None:
 			# getting further torrent information
 			result = geturlcontent(rowdata.get('link'))
@@ -138,12 +144,15 @@ def search(query, verified):
 			# merging arrays
 			rowdata.update(elementdata)
 			# computing peers field
-			rowdata['peers'] = rowdata.get('seeders') + rowdata.get('leechers')
+			rowdata['peers'] = str(int(rowdata.get('seeders')) + int(rowdata.get('leechers')))
 			# retrieving right infohash field
 			rowdata['infohash'] = rowdata.get('infohash').split(': ')[1]
 			# retrieving right sizebytes field
 			rowdata['sizebytes'] = re.sub('\D', '', str(re.findall('\((.*?)\)', rowdata.get('sizebytes')[rowdata.get('sizebytes').rindex('('):])))
 		records.append(rowdata)
+		# checking result limits
+		count += 1
+		if LIMITRESULTS > 0 and count >= LIMITRESULTS: break
 	return convertrecordstoxml(records)
 
 def getconvertedparameters(par):
@@ -174,7 +183,6 @@ class KATService(object):
 		if SONARRSEARCHFORMAT in url: par = getconvertedparameters(re.findall(SONARRSEARCHFORMAT+'(.*?)/', url)[0])
 		verified = ('verified:1' in url.lower())
 		return search(par, verified)
-	#index.exposed = True
 
 if __name__ == u"__main__":
 	cherrypy.server.socket_host = LISTENADDRESS
