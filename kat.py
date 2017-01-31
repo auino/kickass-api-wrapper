@@ -1,3 +1,6 @@
+# kickass-api-wrapper
+# https://github.com/auino/kickass-api-wrapper
+
 #!/usr/bin/env python
 
 import sys
