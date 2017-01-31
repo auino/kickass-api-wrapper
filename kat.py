@@ -62,10 +62,11 @@ def createxmlsubtreefromrecord(parent, fieldname, data):
 	except: return None
 
 def convertrecordstoxml(records):
-	xml = Element('channel')
-	xml.title = 'kickass-api-wrapper'
+	xml = Element('rss', {'version': '2.0', 'xmlns:torrent': 'http://xmlns.ezrss.it/0.1/'})
+	channel = SubElement(xml, 'channel')
+	channel.title = 'kickass-api-wrapper'
 	for r in records:
-		top = createxmlsubtreefromrecord(xml, 'item', r.get('recordname'))
+		top = createxmlsubtreefromrecord(channel, 'item', r.get('recordname'))
 		title = createxmlsubtreefromrecord(top, 'title', r.get('name'))
 		category = createxmlsubtreefromrecord(top, 'category', CATEGORY)
 		author = createxmlsubtreefromrecord(top, 'author', r.get('uploader'))
@@ -75,7 +76,7 @@ def convertrecordstoxml(records):
 		length = createxmlsubtreefromrecord(top, 'torrent:contentLenght', r.get('sizebytes'))
 		infohash = createxmlsubtreefromrecord(top, 'torrent:infoHash', r.get('infohash'))
 		uri = createxmlsubtreefromrecord(top, 'torrent:magnetURI', '<![CDATA['+r.get('magnet')+']]>')
-		seeds = createxmlsubtreefromrecord(top, 'torrent:seeds', r.get('seeds'))
+		seeds = createxmlsubtreefromrecord(top, 'torrent:seeds', r.get('seeders'))
 		peers = createxmlsubtreefromrecord(top, 'torrent:peers', r.get('peers'))
 		verified = createxmlsubtreefromrecord(top, 'torrent:verified', ('1' if r.get('verified') else '0'))
 		filename = createxmlsubtreefromrecord(top, 'torrent:fileName', r.get('name'))
@@ -182,7 +183,9 @@ class KATService(object):
 		url = cherrypy.url()
 		if SONARRSEARCHFORMAT in url: par = getconvertedparameters(re.findall(SONARRSEARCHFORMAT+'(.*?)/', url)[0])
 		verified = ('verified:1' in url.lower())
-		return search(par, verified)
+		r = search(par, verified)
+		print r
+		return r
 
 if __name__ == u"__main__":
 	cherrypy.server.socket_host = LISTENADDRESS
