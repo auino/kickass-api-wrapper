@@ -46,7 +46,7 @@ The program will be executed as `root`.
 
 #### Sonarr Configuration ####
 
-At this point, you can set up your Sonarr (or similar) software by adding a custom KickassTorrents indexer pointing to the following address (default configuration on `localhost`):
+At this point, you can set up your [Sonarr](https://sonarr.tv) (or similar) software by adding a custom KickassTorrents indexer pointing to the following address (default configuration on `localhost` machine):
 
 ```
 http://127.0.0.1:8123
