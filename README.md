@@ -44,6 +44,14 @@ python kat.py
 If you wish to run the daemon at system boot, insert the command inside of the `/etc/rc.local` file, by specifying the whole path of the Python script.
 The program will be executed as `root`.
 
+#### Sonarr Configuration ####
+
+At this point, you can set up your Sonarr (or similar) software by adding a custom KickassTorrents indexer pointing to the following address (default configuration on `localhost`):
+
+```
+http://127.0.0.1:8123
+```
+
 ### Notes ###
 
 Based on an [Alfred script based on Python](http://www.packal.org/workflow/kat-search) by Emanuele Munafò.
