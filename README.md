@@ -56,6 +56,12 @@ http://127.0.0.1:8123
 
 Based on an [Alfred script based on Python](http://www.packal.org/workflow/kat-search) by Emanuele Munafò.
 
+### Updates ###
+
+After a few days after the release of this script, official [Jackett](https://github.com/Jackett/Jackett) developers relased an update to the official program to support KickassTorrents.
+Therefore, being Jackett a reliable well-known program supporting additional indexers, we personally suggest to use Jackett instead of this tool.
+Nevertheless, for archive and to support code analysis, extension and forking, this repository will not die.
+
 ### Contacts ###
 
 You can find me on Twitter as [@auino](https://twitter.com/auino).
