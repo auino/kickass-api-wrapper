@@ -59,8 +59,9 @@ Based on an [Alfred script based on Python](http://www.packal.org/workflow/kat-s
 ### Updates ###
 
 After a few days after the release of this script, official [Jackett](https://github.com/Jackett/Jackett) developers relased an update to the official program to support KickassTorrents.
-Therefore, being Jackett a reliable well-known program supporting additional indexers, we personally suggest to use Jackett instead of this tool.
-Nevertheless, for archive and to support code analysis, extension and forking, this repository will not die.
+Nevertheless, we noticed that Jackett support to KickassTorrents does not work perfectly.
+If it works for you, being Jackett a reliable well-known program supporting additional indexers, we personally suggest to use Jackett instead of this tool.
+For other users having problems with Jackett (e.g. users having `mono` version prior 4), and for archive and to support code analysis, extension and forking, use this repository.
 
 ### Contacts ###
 
