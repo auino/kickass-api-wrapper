@@ -17,7 +17,7 @@ from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 ###        BEGIN        ###
 ###########################
 
-# limits returned results
+# limits returned results (e.g. set it to 5; useful, for instance, if you have connection problems making HTTP timeouts expire)
 LIMITRESULTS = None
 
 # listening address used by the server (i.e. set it to "127.0.0.1" to only accept connections from localhost, "0.0.0.0" for a public service binding)
@@ -53,6 +53,9 @@ SEPARATOR = '+'
 
 # comparison string to identify verified torrents
 VERIFIEDSTRING = 'Verified Torrent'
+
+# check episode by file name
+CHECKEPISODENAMES = True
 
 # extraction patterns
 
@@ -124,6 +127,12 @@ def dataextractor(data, patterns):
 		except: return None
 	return res
 
+# checks if name includes the right episode
+def correctname(name, q):
+	if not CHECKEPISODENAMES: return True # double check
+	return (q in name.lower())
+
+# downloads content from a given URL
 def geturlcontent(url):
 	# making the request
 	r = requests.get(url, headers={'User-Agent':USER_AGENT,'Upgrade-Insecure-Requests': '1','x-runtime': '148ms'}, allow_redirects=True)
@@ -151,6 +160,8 @@ def search(query, verified):
 		if rowdata == None: continue
 		# checking if magnet link is present
 		if rowdata.get('magnet') == None: continue
+		# checking file names
+		if CHECKEPISODENAMES and not correctname(rowdata.get('name'), query[query.rindex('+')+1:]): continue
 		# retrieving right verified field
 		if rowdata.get('verified') == None: verified = False
 		else: rowdata['verified'] = rowdata.get('verified').lower() == VERIFIEDSTRING.lower()
