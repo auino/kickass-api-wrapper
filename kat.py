@@ -142,6 +142,7 @@ def geturlcontent(url):
 	# getting html content
 	return r.content
 
+# main search method
 def search(query, verified):
 	records = []
 	# searching all results
@@ -212,6 +213,7 @@ def getconvertedparameters(par):
 				res += kv[1]
 	return res
 
+# service class
 class KATService(object):
 	@cherrypy.expose
 	def default(self,*args,**kwargs):
@@ -224,6 +226,7 @@ class KATService(object):
 		print r
 		return r
 
+# main program
 if __name__ == u"__main__":
 	cherrypy.server.socket_host = LISTENADDRESS
 	cherrypy.config.update({'server.socket_port': LISTENPORT})
