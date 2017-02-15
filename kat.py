@@ -162,7 +162,9 @@ def search(query, verified):
 		# checking if magnet link is present
 		if rowdata.get('magnet') == None: continue
 		# checking file names
-		if CHECKEPISODENAMES and not correctname(rowdata.get('name'), query[query.rindex('+')+1:]): continue
+		try:
+			if CHECKEPISODENAMES and not correctname(rowdata.get('name'), query[query.rindex('+')+1:]): continue
+		except: pass # default permit approach
 		# retrieving right verified field
 		if rowdata.get('verified') == None: verified = False
 		else: rowdata['verified'] = rowdata.get('verified').lower() == VERIFIEDSTRING.lower()
